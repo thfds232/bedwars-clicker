@@ -1,4 +1,4 @@
-name: Build Fixed Fabric Mod
+name: Build Safe Fabric Mod
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -13,29 +13,28 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Fabric Project
+      - name: Download Minecraft Environment
         run: |
-          # Скачиваем официальный, полностью настроенный рабочий скелет мода Fabric
-          git clone --depth=1 https://github.com template
+          # 1. Скачиваем официальный Fabric Loader для компиляции кода
+          wget -q https://fabricmc.net
           
-          # Очищаем демонстрационные файлы шаблона, чтобы они не мешали
-          rm -rf template/src/main/java/com
-          mkdir -p template/src/main/java/net/autoclicky
-          
-          # Копируем наши файлы с кодом в правильные рабочие папки проекта
-          cp AutoClickyMod.java template/src/main/java/net/autoclicky/
-          cp fabric.mod.json template/src/main/resources/
-          
-          # Настраиваем конфигурацию сборщика под версию 1.21.1 (она полностью совместима с 1.21.11)
-          cd template
-          sed -i 's/minecraft_version=.*/minecraft_version=1.21.1/g' gradle.properties
-          
-          # Даем системе права и запускаем официальную компиляцию через Gradle
-          chmod +x gradlew
-          ./gradlew build
+          # 2. Скачиваем официальную базу Minecraft 1.21.1 со всеми хитбоксами и кнопками
+          wget -q https://mojang.com -O minecraft-1.21.1.jar
 
-      - name: Upload Finished Mod File
+      - name: Compile and Pack Jar
+        run: |
+          # Создаем точную структуру папок внутри сервера
+          mkdir -p net/autoclicky
+          mv AutoClickyMod.java net/autoclicky/
+          
+          # Компилируем код, подключив скачанную базу игры и загрузчик
+          javac -cp "fabric-loader-0.15.11.jar:minecraft-1.21.1.jar" net/autoclicky/AutoClickyMod.java
+          
+          # Упаковываем .class файлы и паспорт json в готовый .jar мод
+          jar cf autoclicky-1.21.11.jar fabric.mod.json net/
+
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
-          name: AutoClicky-Jar
-          path: template/build/libs/*-base.jar
+          name: AutoClicky-Jar-File
+          path: autoclicky-1.21.11.jar
