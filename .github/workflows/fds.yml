@@ -1,0 +1,41 @@
+name: Ultimate Fabric Build
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Official Fabric Environment
+        run: |
+          # Скачиваем официальный пустой рабочий проект-шаблон Fabric
+          git clone --depth=1 https://github.com template
+          
+          # Вычищаем демонстрационные файлы шаблона
+          rm -rf template/src/main/java/com
+          mkdir -p template/src/main/java/net/autoclicky
+          
+          # Раскладываем наши файлы по правильным рабочим папкам проекта
+          cp AutoClickyMod.java template/src/main/java/net/autoclicky/
+          cp fabric.mod.json template/src/main/resources/
+          
+          # Фиксируем версию игры 1.21.1 (она полностью совпадает по коду с твоей 1.21.11)
+          cd template
+          sed -i 's/minecraft_version=.*/minecraft_version=1.21.1/g' gradle.properties
+          
+          # Выдаем права и запускаем официальную сборку
+          chmod +x gradlew
+          ./gradlew build
+
+      - name: Upload Finished Jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoClicky-Jar
+          path: template/build/libs/*-base.jar
