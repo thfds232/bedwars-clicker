@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "smartblockplacement",
+  "version": "1.6",
+  "name": "SmartBlockPlacement",
+  "description": "A client mod that adds a quick block placement feature, but does it smartly.",
+  "authors": ["Ender_Fake"],
+  "contact": {
+    "repo": "https://github.com/Ender-Fake/SmartBlockPlacement"
+  },
+  "license": "MIT",
+  "icon": "assets/smartblockplacement/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.enderium.smartblockplacement.client.SmartBlockPlacementClient",
+      "net.autoclicky.AutoClickyMod"
+    ]
+  },
+  "mixins": [
+    "smartblockplacement.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "fabric": "*",
+    "minecraft": "1.21.*"
+  }
+}
