@@ -1,0 +1,23 @@
+name: Build Mod
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build Code
+        run: |
+          mkdir -p net/autoclicky
+          mv AutoClickyMod.java net/autoclicky/
+          javac net/autoclicky/AutoClickyMod.java
+          jar cf autoclicky-1.21.11.jar fabric.mod.json net/
+      - name: Upload Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-mod
+          path: autoclicky-1.21.11.jar
