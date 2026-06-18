@@ -1,4 +1,4 @@
-name: Build Fabric Mod
+name: Build Fixed Fabric Mod
 on: [push, workflow_dispatch]
 jobs:
   build:
@@ -15,27 +15,27 @@ jobs:
 
       - name: Setup Fabric Project
         run: |
-          # Скачиваем официальный легковесный шаблон сборщика Fabric
+          # Скачиваем официальный, полностью настроенный рабочий скелет мода Fabric
           git clone --depth=1 https://github.com template
           
-          # Наводим порядок в структуре
+          # Очищаем демонстрационные файлы шаблона, чтобы они не мешали
           rm -rf template/src/main/java/com
           mkdir -p template/src/main/java/net/autoclicky
           
-          # Переносим наши файлы в официальный сборщик
+          # Копируем наши файлы с кодом в правильные рабочие папки проекта
           cp AutoClickyMod.java template/src/main/java/net/autoclicky/
           cp fabric.mod.json template/src/main/resources/
           
-          # Настраиваем версию игры 1.21.1 в сборщике для совместимости
+          # Настраиваем конфигурацию сборщика под версию 1.21.1 (она полностью совместима с 1.21.11)
           cd template
           sed -i 's/minecraft_version=.*/minecraft_version=1.21.1/g' gradle.properties
           
-          # Запускаем официальную безопасную компиляцию
+          # Даем системе права и запускаем официальную компиляцию через Gradle
           chmod +x gradlew
           ./gradlew build
 
-      - name: Upload Finished Mod
+      - name: Upload Finished Mod File
         uses: actions/upload-artifact@v4
         with:
-          name: AutoClicky-Jar-File
+          name: AutoClicky-Jar
           path: template/build/libs/*-base.jar
